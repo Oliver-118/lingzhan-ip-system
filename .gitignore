@@ -1,0 +1,33 @@
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
+# 数据库文件（部署时由 initDB 自动创建）
+data/*.db
+data/*.db-shm
+data/*.db-wal
+
+# 上传的文件（用户上传的内容不提交到 git）
+public/uploads/*
+!public/uploads/.gitkeep
+
+# 环境变量
+.env
+.<EMAIL>
+
+# 日志
+*.log
+logs/
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
