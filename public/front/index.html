@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>灵栈AI - 前台IP资产库</title>
+<style>
+:root{
+  --bg:#05070b;--panel:#0b1017;--panel2:#111824;--line:rgba(255,255,255,.09);
+  --text:#edf6ff;--muted:#7b8798;--cyan:#50e6ff;--cyan2:#20bfd5;--blue:#6aa7ff;
+  --shadow:0 24px 70px rgba(0,0,0,.45);
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",Arial,sans-serif;background:#030405;color:var(--text)}
+button,input,select{font:inherit}button{cursor:pointer}input,select{outline:none}
+.hide{display:none!important}
+
+/* ===== 登录页 ===== */
+.star-bg{min-height:100vh;position:relative;overflow:hidden;background:radial-gradient(circle at 50% 45%,rgba(255,255,255,.045),transparent 22%),radial-gradient(circle at 85% 30%,rgba(45,215,255,.06),transparent 18%),#050505}
+.star-bg:before{content:"";position:absolute;inset:0;background-image:radial-gradient(#fff 0 1px,transparent 1.4px),radial-gradient(#77e9ff 0 1px,transparent 1.2px),radial-gradient(#fff 0 1px,transparent 1.2px);background-size:180px 180px,260px 260px,380px 380px;background-position:0 0,70px 130px,220px 60px;opacity:.45}
+.star-bg:after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 85%,rgba(0,0,0,.86),transparent 35%),linear-gradient(180deg,rgba(0,0,0,.12),rgba(0,0,0,.75));pointer-events:none}
+.landing-wrap{position:relative;z-index:1;min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding-bottom:80px}
+.slogan{font-size:25px;color:rgba(255,255,255,.52);letter-spacing:18px;margin-bottom:88px;white-space:nowrap;text-indent:18px}
+.slogan:before,.slogan:after{content:"";display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--cyan);vertical-align:middle;margin:0 22px;box-shadow:0 0 18px rgba(80,230,255,.9)}
+.logo-big{display:flex;align-items:center;justify-content:center;gap:34px;margin-bottom:96px}
+.swirl{width:148px;height:148px;border-radius:50%;position:relative;background:repeating-conic-gradient(from 25deg,#f7fbff 0 7deg,transparent 8deg 17deg);filter:drop-shadow(0 0 18px rgba(80,230,255,.18))}
+.swirl:before{content:"";position:absolute;inset:22px;border-radius:50%;background:#050505}
+.swirl:after{content:"";position:absolute;left:63px;top:64px;width:19px;height:19px;border-radius:50%;background:var(--cyan);box-shadow:0 0 0 12px rgba(80,230,255,.12),0 0 30px rgba(80,230,255,.9)}
+.logo-text{font-size:92px;font-weight:760;letter-spacing:3px;color:white;text-shadow:0 0 24px rgba(255,255,255,.12)}
+.start-btn{height:70px;min-width:260px;border:2px solid rgba(255,255,255,.86);border-radius:999px;background:rgba(0,0,0,.18);color:white;font-size:27px;font-weight:720;letter-spacing:5px;box-shadow:inset 0 0 28px rgba(255,255,255,.05),0 0 30px rgba(255,255,255,.04)}
+.start-btn:hover{border-color:var(--cyan);color:#dffbff;box-shadow:0 0 36px rgba(80,230,255,.26)}
+
+.login-modal{position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.25);backdrop-filter:blur(2px)}
+.login-box{width:590px;border:1px solid rgba(255,255,255,.22);border-radius:20px;background:linear-gradient(135deg,rgba(38,39,38,.86),rgba(23,24,24,.82));box-shadow:0 34px 90px rgba(0,0,0,.5),inset 0 0 60px rgba(255,255,255,.04);padding:52px 44px 42px;position:relative}
+.login-close{position:absolute;right:24px;top:20px;border:0;background:transparent;color:rgba(255,255,255,.55);font-size:40px;line-height:1}
+.login-logo{display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:34px}
+.swirl-sm{width:76px;height:76px;border-radius:50%;position:relative;background:repeating-conic-gradient(from 25deg,#f7fbff 0 7deg,transparent 8deg 17deg)}
+.swirl-sm:before{content:"";position:absolute;inset:12px;border-radius:50%;background:#222}
+.swirl-sm:after{content:"";position:absolute;left:33px;top:34px;width:10px;height:10px;border-radius:50%;background:var(--cyan);box-shadow:0 0 18px rgba(80,230,255,.9)}
+.login-logo span{font-size:44px;font-weight:720;color:white}
+.field{height:56px;border:1px solid rgba(255,255,255,.17);background:rgba(255,255,255,.055);border-radius:10px;display:flex;align-items:center;padding:0 20px;margin-bottom:18px;color:rgba(255,255,255,.62)}
+.field b{font-weight:400;font-size:25px;margin-right:14px;color:rgba(255,255,255,.72)}
+.field input{border:0;background:transparent;color:#fff;width:100%;height:100%;font-size:18px}
+.field input::placeholder{color:rgba(255,255,255,.32)}
+.login-row{display:flex;align-items:center;justify-content:space-between;margin:4px 0 22px;color:rgba(255,255,255,.62);font-size:16px}.login-row a{color:#30e7ff;text-decoration:none;font-weight:650}.login-row input{width:18px;height:18px;margin-right:8px;vertical-align:middle}
+.login-submit{width:100%;height:62px;border:1px solid rgba(255,255,255,.16);border-radius:14px;background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.06));color:white;font-size:26px;font-weight:720;letter-spacing:10px}.login-submit:hover{border-color:rgba(80,230,255,.42);box-shadow:0 0 26px rgba(80,230,255,.12)}
+.login-tip{margin-top:14px;color:#9ea7b5;font-size:13px;text-align:center}.error{color:#ff7a8b;margin-top:12px;text-align:center;font-size:14px}
+
+/* ===== 应用框架 ===== */
+.topbar{height:70px;border-bottom:1px solid var(--line);background:rgba(5,7,11,.82);backdrop-filter:blur(18px);position:sticky;top:0;z-index:20}
+.topbar-inner{max-width:1280px;margin:0 auto;height:100%;display:flex;align-items:center;justify-content:space-between;padding:0 28px}
+.brand{display:flex;align-items:center;gap:12px}.logo-mark{width:36px;height:36px;border-radius:50%;background:repeating-conic-gradient(from 25deg,#f7fbff 0 8deg,transparent 9deg 18deg);position:relative}.logo-mark:before{content:"";position:absolute;inset:7px;border-radius:50%;background:#05070b}.logo-mark:after{content:"";position:absolute;left:16px;top:16px;width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:0 0 12px var(--cyan)}
+.brand-title{font-size:22px;font-weight:700;letter-spacing:.04em}.brand-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.navtabs{display:flex;gap:4px;padding:4px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.03)}.navtabs button{border:0;background:transparent;color:#8793a4;padding:9px 18px;border-radius:999px}.navtabs button.active{color:#dffaff;background:rgba(98,230,255,.13);box-shadow:inset 0 0 0 1px rgba(98,230,255,.16)}
+.header-actions{display:flex;align-items:center;gap:14px}.search-mini{width:260px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.035);height:38px;display:flex;align-items:center;padding:0 14px;color:var(--muted);font-size:13px}
+.avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#dce9f6,#5b6b82);border:1px solid rgba(255,255,255,.2)}
+.logout{border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:#d9e7f5;border-radius:999px;height:36px;padding:0 14px}
+.app-bg{min-height:100vh;background:radial-gradient(900px 500px at 60% -10%,rgba(42,190,220,.18),transparent 55%),radial-gradient(600px 520px at 90% 90%,rgba(68,105,255,.12),transparent 60%),var(--bg)}
+.container{max-width:1280px;margin:0 auto;padding:28px}.page{display:none}.page.active{display:block}
+.hero{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:22px}
+.eyebrow{display:flex;align-items:center;gap:8px;color:#b9f8ff;font-size:14px;margin-bottom:10px}
+.slash{width:4px;height:18px;background:linear-gradient(var(--cyan),transparent);border-radius:4px}h1{font-size:34px;line-height:1.2;margin:0;font-weight:760}
+.desc{margin:10px 0 0;color:var(--muted);font-size:14px}.refresh{border:1px solid var(--line);background:rgba(255,255,255,.04);color:#d5e8f0;border-radius:14px;height:42px;padding:0 18px}
+
+/* 筛选面板 */
+.filter-panel{border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.025));border-radius:28px;padding:20px;box-shadow:var(--shadow);margin-bottom:24px}
+.search-row{display:flex;align-items:center;gap:12px;border:1px solid var(--line);background:rgba(0,0,0,.28);height:48px;border-radius:18px;padding:0 16px;margin-bottom:18px}
+.icon{width:18px;height:18px;display:inline-flex;color:#95f3ff}.search-row input{width:100%;background:transparent;border:0;outline:0;color:#fff;font-size:14px}.search-row input::placeholder{color:#586272}
+.filter-line{display:grid;grid-template-columns:86px 1fr;gap:16px;align-items:center;margin:13px 0}
+.filter-label{color:#8d98aa;font-size:14px}
+.pills{display:flex;flex-wrap:wrap;gap:10px}
+.pill{border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.035);color:#c8d2df;border-radius:999px;padding:8px 16px;font-size:14px;transition:.2s}
+.pill:hover{border-color:rgba(98,230,255,.5);color:white}
+.pill.active{border-color:rgba(98,230,255,.7);background:rgba(98,230,255,.14);color:#dffaff;box-shadow:0 0 22px rgba(98,230,255,.12)}
+
+.result-meta{display:flex;justify-content:space-between;align-items:center;margin:8px 2px 16px;color:#8995a7;font-size:13px}
+
+/* 卡片网格 */
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.card{border:1px solid var(--line);border-radius:26px;background:rgba(255,255,255,.035);overflow:hidden;text-align:left;color:inherit;padding:0;box-shadow:var(--shadow);transition:.25s}
+.card:hover{transform:translateY(-4px);border-color:rgba(98,230,255,.45);box-shadow:0 26px 70px rgba(13,108,134,.22)}
+.cover{aspect-ratio:3/4;position:relative;overflow:hidden;background:#101723}
+.cover-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.portrait{position:absolute;inset:0;background:radial-gradient(circle at 50% 20%,rgba(255,255,255,.85) 0 7%,transparent 8%),radial-gradient(ellipse at 50% 34%,rgba(230,240,255,.8) 0 16%,transparent 17%),radial-gradient(ellipse at 50% 68%,var(--accent) 0 31%,transparent 32%),linear-gradient(135deg,rgba(255,255,255,.07),rgba(255,255,255,0));filter:saturate(1.06)}
+.cover:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 28%,transparent 0 16%,rgba(0,0,0,.5) 45%,rgba(0,0,0,.94) 100%),linear-gradient(180deg,transparent 45%,rgba(0,0,0,.86));z-index:1}
+.cover:after{content:"";position:absolute;left:-20%;top:-20%;width:150%;height:60%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.18),transparent);transform:rotate(-18deg);z-index:2}
+.card-name{position:absolute;z-index:3;left:18px;bottom:18px;font-size:21px;font-weight:700;text-shadow:0 2px 16px #000}
+
+/* 详情页 */
+.detail-hero{position:relative;border:1px solid var(--line);border-radius:32px;overflow:hidden;min-height:310px;background:#080d14;box-shadow:var(--shadow);margin-bottom:22px}
+.hero-visual{position:absolute;inset:0;background:radial-gradient(ellipse at 58% 28%,rgba(255,255,255,.46),transparent 13%),radial-gradient(ellipse at 58% 48%,var(--accent),transparent 32%),linear-gradient(90deg,#030508 0%,rgba(3,5,8,.86) 32%,rgba(3,5,8,.34) 70%,#030508 100%)}
+.detail-hero:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#030508 0%,rgba(3,5,8,.8) 28%,rgba(3,5,8,.2) 70%,#030508 100%)}
+.detail-content{position:relative;z-index:2;padding:36px 42px}
+.back-btn{height:38px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.04);color:#cbd6e3;padding:0 16px;margin-bottom:20px}
+.ip-title{font-size:52px;font-weight:760;letter-spacing:.08em;margin:0 0 12px}
+.tag-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px}
+.info-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;max-width:900px;background:rgba(0,0,0,.35);border:1px solid var(--line);border-radius:22px;padding:12px;backdrop-filter:blur(12px)}
+.info-box{border-right:1px solid rgba(255,255,255,.08);padding:8px 12px}.info-box:last-child{border-right:0}
+.info-label{font-size:12px;color:#778293;margin-bottom:5px}.info-value{font-size:15px;color:white}
+
+.detail-layout{display:grid;grid-template-columns:1fr 1.15fr;gap:18px}
+.panel{border:1px solid var(--line);background:rgba(255,255,255,.035);border-radius:26px;padding:20px;box-shadow:var(--shadow)}
+.panel-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}.panel-title h2{font-size:18px;margin:0}
+.more{color:#91f4ff;font-size:13px;border:0;background:transparent}
+.media-large{height:290px;border:1px solid var(--line);border-radius:20px;background:radial-gradient(ellipse at 50% 35%,rgba(255,255,255,.45),transparent 18%),radial-gradient(ellipse at 50% 64%,var(--accent),transparent 35%),#0e1420;position:relative;overflow:hidden}
+.play{position:absolute;left:18px;bottom:18px;width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.9);display:grid;place-items:center;color:#071018;font-size:18px}
+.thumbs{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
+.thumb{height:92px;border-radius:16px;border:1px solid var(--line);background:radial-gradient(ellipse at 50% 35%,rgba(255,255,255,.42),transparent 17%),radial-gradient(ellipse at 50% 68%,var(--accent),transparent 37%),#0e1420;position:relative;overflow:hidden}.thumb img{width:100%;height:100%;object-fit:cover;border-radius:15px}
+
+.version-tabs{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.style-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+.style-card{height:150px;border-radius:18px;border:1px solid var(--line);background:radial-gradient(ellipse at 50% 32%,rgba(255,255,255,.52),transparent 18%),radial-gradient(ellipse at 50% 67%,var(--accent),transparent 36%),#111827;position:relative;overflow:hidden}
+.style-card img{width:100%;height:100%;object-fit:cover}
+.style-card span{position:absolute;left:10px;bottom:9px;font-size:12px;color:#dce8f8;background:rgba(0,0,0,.35);border-radius:999px;padding:4px 8px}
+
+.empty{display:none;text-align:center;padding:50px;border:1px dashed rgba(255,255,255,.15);border-radius:24px;color:#7f8a9c}
+.loading{text-align:center;padding:40px;color:var(--muted);font-size:15px}
+.asset-empty{display:grid;place-items:center;height:100%;color:rgba(255,255,255,.3);font-size:14px}
+.toast{position:fixed;top:24px;left:50%;transform:translateX(-50%) translateY(-80px);background:rgba(0,200,230,.88);color:#fff;padding:12px 28px;border-radius:12px;font-size:14px;z-index:9999;transition:.35s;pointer-events:none;box-shadow:0 8px 30px rgba(0,200,230,.3)}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+@media(max-width:1050px){.grid{grid-template-columns:repeat(3,1fr)}.detail-layout{grid-template-columns:1fr}.info-strip{grid-template-columns:repeat(2,1fr)}.style-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:720px){.slogan{font-size:16px;letter-spacing:8px;text-indent:8px}.logo-big{gap:16px}.swirl{width:90px;height:90px}.logo-text{font-size:54px}.login-box{width:90vw;padding:42px 24px 30px}.topbar-inner{padding:0 16px}.navtabs,.search-mini{display:none}.container{padding:18px}.grid{grid-template-columns:repeat(2,1fr)}.filter-line{grid-template-columns:1fr}.hero{align-items:flex-start;flex-direction:column}.ip-title{font-size:38px}.style-grid{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+
+<!-- ========== 登录页面 ========== -->
+<section id="loginScreen" class="star-bg">
+<div class="landing-wrap">
+<div>
+<div class="slogan">灵栈AI-让每一个灵感都栖息于此</div>
+<div class="logo-big"><div class="swirl"></div><div class="logo-text">灵栈AI</div></div>
+<button class="start-btn" onclick="openLogin()">开始探索</button>
+</div>
+</div>
+<div id="loginModal" class="login-modal hide">
+<div class="login-box">
+<button class="login-close" onclick="closeLogin()">×</button>
+<div class="login-logo"><div class="swirl-sm"></div><span>灵栈AI</span></div>
+<div class="field"><b>♙</b><input id="frontUser" placeholder="请输入账号" autocomplete="username" /></div>
+<div class="field"><b>▣</b><input id="frontPass" placeholder="请输入密码" type="password" autocomplete="current-password" onkeydown="if(event.key==='Enter')frontLogin()" /><b onclick="togglePass('frontPass')" style="cursor:pointer">◉</b></div>
+<div class="login-row"><label><input type="checkbox" />记住我</label><a href="javascript:void(0)">忘记密码?</a></div>
+<button class="login-submit" onclick="frontLogin()" id="loginBtn">登录</button>
+<div class="login-tip">演示账号：admin2 / 密码：1234567</div>
+<div id="frontLoginError" class="error"></div>
+</div>
+</div>
+</section>
+
+<!-- ========== 前台应用（登录后显示） ========== -->
+<section id="frontApp" class="app-bg hide">
+<header class="topbar"><div class="topbar-inner">
+<div class="brand"><div class="logo-mark"></div><div><div class="brand-title">灵栈AI</div><div class="brand-sub">前台网址 · IP资产库</div></div></div>
+<div class="navtabs"><button class="active" onclick="showPage('library')">资产库</button></div>
+<div class="header-actions"><div class="avatar"></div><button class="logout" onclick="frontLogout()">退出</button></div>
+</div></header>
+<main class="container">
+
+<!-- 资产库页 -->
+<section id="library" class="page active">
+<div class="hero">
+<div><div class="eyebrow"><span class="slash"></span>资产库</div><h1>IP资产库</h1><p class="desc">前台仅展示后台已上架IP。支持按姓名搜索，以及按性别、年龄区间、风格筛选。</p></div>
+<button class="refresh" onclick="loadIPs()">刷新数据</button>
+</div>
+<div class="filter-panel">
+<div class="search-row"><span class="icon">⌕</span><input id="kw" placeholder="搜索IP姓名，例如：李默涵" oninput="renderCards()" /></div>
+<div class="filter-line"><div class="filter-label">性别</div><div class="pills" id="genderPills"></div></div>
+<div class="filter-line"><div class="filter-label">年龄区间</div><div class="pills" id="agePills"></div></div>
+<div class="filter-line"><div class="filter-label">风格</div><div class="pills" id="stylePills"></div></div>
+</div>
+<div class="result-meta"><span id="countText">加载中...</span><span>点击卡片进入IP详情</span></div>
+<div class="loading" id="libraryLoading">正在加载IP数据...</div>
+<div class="grid" id="cardGrid"></div><div class="empty" id="empty">未找到符合条件的IP</div>
+</section>
+
+<!-- 详情页 -->
+<section id="detail" class="page">
+<button class="back-btn" onclick="showPage('library')">← 返回资产库</button>
+<div class="detail-hero"><div class="hero-visual" id="detailHeroVisual"></div><div class="detail-content">
+<h1 class="ip-title" id="detailName">-</h1>
+<div class="tag-row"><span class="pill active" id="detailGender">-</span><span class="pill active" id="detailStyle">-</span></div>
+<div class="info-strip"><div class="info-box"><div class="info-label">编号</div><div class="info-value" id="detailNo">-</div></div><div class="info-box"><div class="info-label">年龄</div><div class="info-value" id="detailAge">-</div></div><div class="info-box"><div class="info-label">身高</div><div class="info-value" id="detailHeight">-</div></div><div class="info-box"><div class="info-label">籍贯</div><div class="info-value" id="detailHome">-</div></div><div class="info-box"><div class="info-label">默认年龄版本</div><div class="info-value" id="detailVersion">-</div></div></div>
+</div></div>
+<div class="panel" style="margin-bottom:18px"><div class="panel-title"><h2>年龄版本</h2><span class="desc">默认选择该IP年龄对应版本</span></div><div class="version-tabs" id="versionTabs"></div></div>
+<div class="detail-layout">
+<section class="panel"><div class="panel-title"><h2>形象介绍</h2><span class="desc">视频介绍 / 人设图 / 三视图</span></div>
+<div class="media-large" id="mainMedia"></div>
+<div class="thumbs"><div class="thumb" id="thumbVideo"></div><div class="thumb" id="thumbRole"></div><div class="thumb" id="thumbThree"></div></div></section>
+<section class="panel"><div class="panel-title"><h2>擅长风格</h2><button class="more" onclick="toggleMoreStyles()" id="moreBtn">查看更多 ></button></div><div class="style-grid" id="styleGrid"></div></section>
+</div>
+</section>
+
+</main>
+</section>
+
+<div id="toast" class="toast"></div>
+
+<script>
+// ==================== 常量与状态 ====================
+const API_BASE = '';
+const FRONT_LOGIN_KEY = 'lingzhan_front_token';
+const genders = ["全部","男性","女性"];
+const ageRanges = ["全部","0–12岁","13–17岁","18–35岁","36–59岁","60岁及以上"];
+const styles = ["全部","现代","古风","年代","科幻"];
+const versions = ["儿童版","少年版","青年版","中年版","老年版"];
+
+let token = localStorage.getItem(FRONT_LOGIN_KEY) || '';
+let filters = { gender: "全部", age: "全部", style: "全部" };
+let allIPs = [];          // 服务端返回的完整IP列表
+let activeIP = null;
+let activeVersion = '青年版';
+let showMore = false;
+
+// ==================== 工具函数 ====================
+function api(url, opts = {}) {
+  const h = { ...(opts.headers || {}) };
+  if (token) h['Authorization'] = `Bearer ${token}`;
+  return fetch(API_BASE + url, { ...opts, headers: h }).then(r => r.json());
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(window._toastT);
+  window._toastT = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function openLogin() {
+  document.getElementById('loginModal').classList.remove('hide');
+  setTimeout(() => document.getElementById('frontUser').focus(), 50);
+}
+function closeLogin() {
+  document.getElementById('loginModal').classList.add('hide');
+  document.getElementById('frontLoginError').textContent = '';
+}
+function togglePass(id) {
+  const el = document.getElementById(id);
+  el.type = el.type === 'password' ? 'text' : 'password';
+}
+
+// ==================== 登录逻辑 ====================
+async function frontLogin() {
+  const u = document.getElementById('frontUser').value.trim();
+  const p = document.getElementById('frontPass').value;
+  const btn = document.getElementById('loginBtn');
+
+  if (!u || !p) { document.getElementById('frontLoginError').textContent = '请输入账号和密码'; return; }
+
+  btn.textContent = '登录中...';
+  btn.disabled = true;
+
+  const res = await api('/api/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username: u, password: p })
+  });
+
+  btn.textContent = '登录';
+  btn.disabled = false;
+
+  if (res.success && res.user.role === 'front') {
+    token = res.token;
+    localStorage.setItem(FRONT_LOGIN_KEY, token);
+    closeLogin();
+    enterApp();
+  } else {
+    document.getElementById('frontLoginError').textContent = res.message || '账号或密码错误';
+  }
+}
+
+function frontLogout() {
+  token = '';
+  localStorage.removeItem(FRONT_LOGIN_KEY);
+  location.reload();
+}
+
+async function enterApp() {
+  document.getElementById('loginScreen').classList.add('hide');
+  document.getElementById('frontApp').classList.remove('hide');
+  renderAllFilters();
+  await loadIPs();
+}
+
+// ==================== 辅助函数 ====================
+function ageRangeOf(a) {
+  a = Number(a || 0);
+  if (a <= 12) return '0–12岁';
+  if (a <= 17) return '13–17岁';
+  if (a <= 35) return '18–35岁';
+  if (a <= 59) return '36–59岁';
+  return '60岁及以上';
+}
+function versionOf(a) {
+  a = Number(a || 0);
+  if (a <= 12) return '儿童版';
+  if (a <= 17) return '少年版';
+  if (a <= 35) return '青年版';
+  if (a <= 59) return '中年版';
+  return '老年版';
+}
+
+// ==================== 筛选器渲染 ====================
+function renderPills(containerId, list, key) {
+  document.getElementById(containerId).innerHTML =
+    list.map(item =>
+      `<button class="pill ${filters[key] === item ? 'active' : ''}" onclick="setFilter('${key}','${item}')">${item}</button>`
+    ).join('');
+}
+function setFilter(key, value) {
+  filters[key] = value;
+  renderAllFilters();
+  renderCards();
+}
+function renderAllFilters() {
+  renderPills('genderPills', genders, 'gender');
+  renderPills('agePills', ageRanges, 'age');
+  renderPills('stylePills', styles, 'style');
+}
+
+// ==================== 加载IP列表（从API） ====================
+async function loadIPs() {
+  document.getElementById('libraryLoading').style.display = 'block';
+
+  try {
+    const res = await api('/api/front/ips?' +
+      new URLSearchParams({
+        keyword: '',
+        gender: filters.gender === '全部' ? '' : filters.gender,
+        ageRange: filters.age === '全部' ? '' : filters.age,
+        style: filters.style === '全部' ? '' : filters.style
+      }).toString()
+    );
+
+    if (res.success) {
+      // 存储完整列表用于本地二次筛选（搜索）
+      allIPs = res.data;
+      document.getElementById('libraryLoading').style.display = 'none';
+      renderCards();
+    } else if (res.message?.includes('过期') || res.message?.includes('未登录')) {
+      frontLogout();
+    }
+  } catch (err) {
+    document.getElementById('libraryLoading').innerHTML = '<span style="color:#ff7a8b">网络连接失败，请检查服务是否启动</span>';
+  }
+}
+
+// ==================== 渲染卡片网格 ====================
+function renderCards() {
+  let list = [...allIPs];
+
+  // 本地搜索关键词过滤（因为API已处理其他筛选项）
+  const kw = document.getElementById('kw')?.value?.trim() || '';
+  if (kw) {
+    list = list.filter(ip => ip.name.includes(kw));
+  }
+
+  document.getElementById('countText').textContent = `共 ${list.length} 个IP`;
+  document.getElementById('empty').style.display = list.length ? 'none' : 'block';
+
+  document.getElementById('cardGrid').innerHTML = list.map(ip =>
+    `<button class="card" onclick="openDetail(${ip.id})">
+       <div class="cover" style="--accent:${ip.accent || '#5c7f9f'}">
+         ${ip.cover ? `<img class="cover-img" src="${ip.cover}" alt="${ip.name}" onerror="this.style.display='none'">` :
+           '<div class="portrait"></div>'}
+         <div class="card-name">${ip.name}</div>
+       </div>
+     </button>`
+  ).join('');
+}
+
+// ==================== 页面导航 ====================
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ==================== 详情页：打开 ====================
+async function openDetail(id) {
+  try {
+    const res = await api(`/api/front/ips/${id}`);
+    if (!res.success) {
+      if (res.message?.includes('下架')) toast('该IP已下架，无法查看详情');
+      return;
+    }
+
+    activeIP = res.data;
+    activeVersion = versionOf(activeIP.age);
+    showMore = false;
+
+    showPage('detail');
+    renderDetail();
+  } catch (err) {
+    toast('加载失败');
+  }
+}
+
+// ==================== 详情页渲染 ====================
+function mediaStyle(offset = 0) {
+  const accent = activeIP?.accent || '#5c7f9f';
+  return `--accent:${accent};filter:hue-rotate(${offset}deg) saturate(1.05)`;
+}
+
+function renderVersionTabs() {
+  document.getElementById('versionTabs').innerHTML = versions.map(v =>
+    `<button class="pill ${activeVersion === v ? 'active' : ''}"
+        onclick="activeVersion='${v}';renderDetailMedia();renderVersionTabs();renderStyleGrid()">${v}</button>`
+  ).join('');
+}
+
+function getAssets() {
+  return activeIP.assets?.[activeVersion] || { video: null, role: null, three: null, styles: [] };
+}
+
+function slotHtml(asset, label, asVideo = false) {
+  if (asset && asset.data) {
+    if (asVideo) {
+      return `<video src="${asset.data}" controls style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover" poster=""></video>`;
+    }
+    return `<img src="${asset.data}" alt="${label}" style="width:100%;height:100%;object-fit:cover">`;
+  }
+  return `<div class="asset-empty">暂无${label}</div>`;
+}
+
+function renderDetailMedia() {
+  const a = getAssets();
+
+  // 主媒体区（视频介绍或人设图大图）
+  const mainEl = document.getElementById('mainMedia');
+  mainEl.setAttribute('style', mediaStyle((versions.indexOf(activeVersion) * 20 + 0 * 35) % 160));
+
+  if (a.video && a.video.data) {
+    mainEl.innerHTML = `<video src="${a.video.data}" controls style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></video>
+                         <div class="play" onclick="this.previousSibling.play()">▶</div>`;
+  } else if (a.role && a.role.data) {
+    mainEl.innerHTML = `<img src="${a.role.data}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover" alt="人设图">`;
+  } else {
+    mainEl.innerHTML = `<div class="asset-empty">暂无视频/人设图素材</div>`;
+  }
+
+  // 缩略图行
+  ['thumbVideo', 'thumbRole', 'thumbThree'].forEach((id, i) => {
+    const el = document.getElementById(id);
+    el.setAttribute('style', mediaStyle((versions.indexOf(activeVersion) * 20 + (i + 1) * 35) % 160));
+    if (i === 0 && a.video && a.video.data) {
+      el.innerHTML = `<img src="${a.video.data}" alt="视频介绍" style="width:100%;height:100%;object-fit:cover;border-radius:15px">`;
+    } else if (i === 1 && a.role && a.role.data) {
+      el.innerHTML = `<img src="${a.role.data}" alt="人设图" style="width:100%;height:100%;object-fit:cover;border-radius:15px">`;
+    } else if (i === 2 && a.three && a.three.data) {
+      el.innerHTML = `<img src="${a.three.data}" alt="三视图" style="width:100%;height:100%;object-fit:cover;border-radius:15px">`;
+    } else {
+      el.innerHTML = '';
+    }
+  });
+}
+
+function renderStyleGrid() {
+  const a = getAssets();
+  const arr = a.styles || [];
+  const displayList = showMore ? arr : arr.slice(0, 5);
+
+  document.getElementById('styleGrid').innerHTML = arr.length
+    ? displayList.map((it, i) =>
+        `<div class="style-card" style="${mediaStyle(i * 18)}">
+           ${it.data ? `<img src="${it.data}" alt="风格${i+1}" onerror="this.remove()">` : ''}
+           <span>${activeIP.style}风格 ${i + 1}</span>
+         </div>`
+      ).join('')
+    : '<div class="asset-empty" style="grid-column:1/-1">暂无擅长风格图片</div>';
+
+  document.getElementById('moreBtn').style.display = arr.length > 5 ? 'inline' : 'none';
+  document.getElementById('moreBtn').textContent = showMore ? '收起' : '查看更多 >';
+}
+
+function toggleMoreStyles() {
+  showMore = !showMore;
+  renderStyleGrid();
+}
+
+function renderDetail() {
+  const ip = activeIP;
+  if (!ip) return;
+
+  document.getElementById('detailHeroVisual').setAttribute('style', `--accent:${ip.accent}`);
+  document.getElementById('detailName').textContent = ip.name;
+  document.getElementById('detailGender').textContent = ip.gender;
+  document.getElementById('detailStyle').textContent = ip.style;
+  document.getElementById('detailNo').textContent = ip.ip_no;
+  document.getElementById('detailAge').textContent = ip.age + '岁';
+  document.getElementById('detailHeight').textContent = ip.height || '未填写';
+  document.getElementById('detailHome').textContent = ip.home || '未填写';
+  document.getElementById('detailVersion').textContent = versionOf(ip.age);
+
+  renderVersionTabs();
+  renderDetailMedia();
+  renderStyleGrid();
+}
+
+// ==================== 初始化 ====================
+if (token) {
+  enterApp();
+}
+</script>
+</body>
+</html>
