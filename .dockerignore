@@ -1,0 +1,8 @@
+node_modules/
+npm-debug.log*
+data/*.db
+public/uploads/*
+.git
+.gitignore
+*.md
+!.dockerignore
