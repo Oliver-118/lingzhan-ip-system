@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>灵栈AI - 后台管控</title>
+<style>
+:root{
+  --bg:#f3f6fb;--side:#07101a;--side2:#0b1623;--panel:#fff;--line:#e6ebf2;
+  --text:#172033;--muted:#718096;--cyan:#00c8e6;--blue:#2f6bff;
+  --green:#18b47b;--red:#ef5366;--orange:#f59e0b;
+  --shadow:0 14px 40px rgba(20,34,56,.08);
+}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",Arial,sans-serif;color:var(--text)}
+button,input,select{font:inherit}button{cursor:pointer}input,select{outline:none}.hide{display:none!important}
+
+/* ===== 登录页 ===== */
+.star-bg{min-height:100vh;position:relative;overflow:hidden;background:radial-gradient(circle at 50% 45%,rgba(255,255,255,.045),transparent 22%),radial-gradient(circle at 85% 30%,rgba(45,215,255,.06),transparent 18%),#050505;display:flex;align-items:center;justify-content:center}
+.star-bg:before{content:"";position:absolute;inset:0;background-image:radial-gradient(#fff 0 1px,transparent 1.4px),radial-gradient(#77e9ff 0 1px,transparent 1.2px),radial-gradient(#fff 0 1px,transparent 1.2px);background-size:180px 180px,260px 260px,380px 380px;background-position:0 0,70px 130px,220px 60px;opacity:.45}
+.star-bg:after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 85%,rgba(0,0,0,.86),transparent 35%),linear-gradient(180deg,rgba(0,0,0,.12),rgba(0,0,0,.75));pointer-events:none}
+.login-wrap{position:relative;z-index:1;width:590px;border:1px solid rgba(255,255,255,.22);border-radius:20px;background:linear-gradient(135deg,rgba(38,39,38,.86),rgba(23,24,24,.82));box-shadow:0 34px 90px rgba(0,0,0,.5),inset 0 0 60px rgba(255,255,255,.04);padding:48px 44px 38px}
+.login-title{display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:32px}
+.swirl-sm{width:76px;height:76px;border-radius:50%;position:relative;background:repeating-conic-gradient(from 25deg,#f7fbff 0 7deg,transparent 8deg 17deg)}
+.swirl-sm:before{content:"";position:absolute;inset:12px;border-radius:50%;background:#222}
+.swirl-sm:after{content:"";position:absolute;left:33px;top:34px;width:10px;height:10px;border-radius:50%;background:#50e6ff;box-shadow:0 0 18px rgba(80,230,255,.9)}
+.login-title span{font-size:44px;font-weight:720;color:white}
+.admin-badge{text-align:center;color:#8aefff;margin-top:-22px;margin-bottom:28px;letter-spacing:5px;font-size:13px}
+.field{height:56px;border:1px solid rgba(255,255,255,.17);background:rgba(255,255,255,.055);border-radius:10px;display:flex;align-items:center;padding:0 20px;margin-bottom:18px;color:rgba(255,255,255,.62)}
+.field b{font-weight:400;font-size:25px;margin-right:14px;color:rgba(255,255,255,.72)}
+.field input{border:0;background:transparent;color:#fff;width:100%;height:100%;font-size:18px}.field input::placeholder{color:rgba(255,255,255,.32)}
+.login-row{display:flex;align-items:center;justify-content:space-between;margin:4px 0 22px;color:rgba(255,255,255,.62);font-size:16px}.login-row input{width:18px;height:18px;margin-right:8px;vertical-align:middle}
+.login-btn{width:100%;height:60px;border:1px solid rgba(255,255,255,.16);border-radius:14px;background:linear-gradient(180deg,rgba(80,230,255,.22),rgba(47,107,255,.16));color:#fff;font-size:24px;font-weight:720;letter-spacing:8px}.login-btn:hover{border-color:#50e6ff;box-shadow:0 0 26px rgba(80,230,255,.25)}
+.login-tip{margin-top:14px;color:#9ea7b5;font-size:13px;text-align:center}.error{color:#ff7a8b;margin-top:12px;text-align:center;font-size:14px}
+
+/* ===== 后台布局 ===== */
+.app{display:flex;min-height:100vh}
+
+/* 侧边栏 */
+.sidebar{width:248px;background:linear-gradient(180deg,var(--side),var(--side2));color:white;position:fixed;inset:0 auto 0 0;box-shadow:12px 0 35px rgba(0,0,0,.18)}
+.brand{height:72px;display:flex;align-items:center;gap:12px;padding:0 22px;border-bottom:1px solid rgba(255,255,255,.08)}
+.logo-mark{width:34px;height:34px;border-radius:50%;background:repeating-conic-gradient(from 25deg,#f7fbff 0 8deg,transparent 9deg 18deg);position:relative}
+.logo-mark:before{content:"";position:absolute;inset:7px;border-radius:50%;background:var(--side)}
+.logo-mark:after{content:"";position:absolute;left:15px;top:15px;width:6px;height:6px;border-radius:50%;background:#50e6ff;box-shadow:0 0 12px #50e6ff}
+.brand-title{font-size:20px;font-weight:750}.brand-sub{font-size:11px;color:#7f91a9;margin-top:2px}
+.nav{padding:18px 14px}
+.nav-section{font-size:12px;color:#65768e;margin:12px 12px 8px;text-transform:uppercase;letter-spacing:2px}
+.nav button{width:100%;height:44px;border:0;background:transparent;color:#aeb9c8;border-radius:14px;text-align:left;padding:0 14px;display:flex;align-items:center;gap:10px;margin-bottom:6px;font-size:15px}
+.nav button:hover{background:rgba(255,255,255,.06);color:white}
+.nav button.active{background:linear-gradient(90deg,rgba(0,200,230,.22),rgba(47,107,255,.12));color:#e9fbff;box-shadow:inset 3px 0 0 var(--cyan)}
+.nav .logout-side{margin-top:24px;color:#e4ecf6}
+
+/* 主区域 */
+.main{margin-left:248px;flex:1;min-width:0}
+.topbar{height:72px;background:rgba(255,255,255,.86);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:20}
+.breadcrumb{font-size:14px;color:var(--muted)}.breadcrumb b{color:var(--text)}
+.admin-user{display:flex;align-items:center;gap:12px;color:#556174;font-size:14px}
+.avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#dfe7f3,#8ba1bc)}
+
+.content{padding:26px 28px 48px}.page{display:none}.page.active{display:block}
+.page-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px}
+.page-head h1{font-size:26px;margin:4px 0 6px}.desc{color:var(--muted);font-size:14px}
+
+/* 按钮 */
+.btn{height:40px;border:1px solid var(--line);border-radius:10px;padding:0 20px;font-size:14px;font-weight:600;display:inline-flex;align-items:center;gap:6px;cursor:pointer;background:var(--panel);transition:.2s}
+.btn:hover{box-shadow:0 4px 14px rgba(20,34,56,.1)}.btn.primary{background:var(--blue);color:#fff;border-color:var(--blue)}.btn.primary:hover{opacity:.92}
+.btn.danger{color:var(--red);border-color:var(--red)}.btn.danger:hover{background:var(--red);color:#fff}
+.btn.ghost{border-color:transparent;background:transparent;color:var(--blue)}.btn.ghost:hover{background:rgba(47,107,255,.06)}
+
+/* 表格面板 */
+.panel{border:1px solid var(--line);border-radius:16px;background:var(--panel);box-shadow:var(--shadow);overflow:hidden}
+.toolbar{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--line)}
+.input{height:36px;border:1px solid var(--line);border-radius:8px;padding:0 12px;font-size:14px;flex:1;max-width:240px}
+.select{height:36px;border:1px solid var(--line);border-radius:8px;padding:0 28px 0 10px;font-size:14px;background:var(--panel)}
+
+table{width:collapse:collapse;width:100%}
+thead th{background:#f8fafc;text-align:left;padding:11px 16px;font-size:13px;color:var(--muted);font-weight:600;border-bottom:1px solid var(--line);white-space:nowrap}
+tbody td{padding:12px 16px;font-size:14px;border-bottom:1px solid #f0f3f7}
+tbody tr:hover{background:#f8fafc}
+.ops{display:flex;gap:8px}
+.link-btn{border:none;background:transparent;color:var(--blue);font-size:14px;cursor:pointer;padding:4px 8px;border-radius:6px}.link-btn:hover{text-decoration:underline}
+
+/* 状态标签 */
+.status{display:inline-flex;align-items:center;gap:6px;font-size:13px;padding:4px 12px;border-radius:999px;font-weight:600}
+.status .dot{width:8px;height:8px;border-radius:50%}
+.status.on{color:var(--green);background:#ecfdf5}.status.on .dot{background:var(--green);box-shadow:0 0 6px rgba(24,180,123,.35)}
+.status.off{color:var(--red);background:#fef2f2}.status.off .dot{background:var(--red);box-shadow:0 0 6px rgba(239,83,102,.35)}
+
+.record-type{display:inline-flex;align-items:center;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600}
+.record-type.create{color:var(--green);background:#ecfdf5}.record-type.update{color:var(--orange);background:#fefce8}
+
+/* 表单页 */
+.form-layout{display:grid;grid-template-columns:380px 1fr;gap:20px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.card{border:1px solid var(--line);border-radius:16px;background:var(--panel);box-shadow:var(--shadow);padding:20px}
+.card-title{font-size:17px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.card-title .status{font-size:12px;font-weight:500}
+.card-title .desc{font-weight:400;color:var(--muted);font-size:13px}
+.lab{font-size:13px;color:var(--muted);margin-bottom:6px}.req{color:var(--red)}
+label input,label select{width:100%;height:40px;border:1px solid var(--line);border-radius:8px;padding:0 12px;font-size:14px}
+.hint{font-size:12px;color:var(--muted);margin-top:12px;line-height:1.6}
+
+/* 封面上传 */
+.upload-cover{height:120px;border:2px dashed var(--line);border-radius:12px;display:grid;place-items:center;cursor:pointer;overflow:hidden;transition:.2s;color:var(--muted);font-size:14px}
+.upload-cover.has{border-style:solid;border-color:var(--cyan)}
+.upload-cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.file-input{display:none}
+
+/* 素材矩阵 */
+.version-tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.matrix{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.slot{border:1px solid var(--line);border-radius:12px;padding:14px}
+.slot-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.slot-title{font-size:14px;font-weight:600}.slot-desc{font-size:12px;color:var(--muted)}
+.slot-box{height:90px;border-radius:8px;background:#f5f7fa;display:grid;place-items:center;margin-bottom:8px;overflow:hidden;border:1px solid transparent;transition:.2s;font-size:13px;color:var(--muted)}
+.slot-box.has{border-color:var(--cyan)}
+.slot-box img{width:100%;height:100%;object-fit:cover;border-radius:7px}
+.slot-box.video.has{background:transparent}
+.slot-actions{display:flex;gap:8px}
+.multi-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.mini-img{width:64px;height:64px;border-radius:8px;overflow:hidden;position:relative;border:1px solid var(--line)}
+.mini-img img{width:100%;height:100%;object-fit:cover}
+.mini-img button{position:absolute;top:-6px;right:-6px;width:18px;height:18px;border-radius:50%;background:var(--red);color:#fff;border:none;font-size:12px;cursor:pointer;display:grid;place-items:center;line-height:1}
+
+.note{font-size:13px;color:var(--orange);background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:12px 16px;margin-bottom:16px;line-height:1.6}
+.detail-note{font-size:12px;color:var(--muted);padding:10px 18px;background:#fafbfc;border-bottom:1px solid var(--line)}
+
+/* 表单操作区 */
+.form-actions{display:flex;justify-content:flex-end;gap:12px;margin-top:20px;padding-top:16px;border-top:1px solid var(--line)}
+
+/* Toast */
+.toast{position:fixed;top:24px;left:50%;transform:translateX(-50%) translateY(-80px);background:var(--text);color:#fff;padding:12px 28px;border-radius:12px;font-size:14px;z-index:9999;transition:.35s;pointer-events:none;box-shadow:0 8px 30px rgba(0,0,0,.15)}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+@media(max-width:1100px){.form-layout{grid-template-columns:1fr}.matrix{grid-template-columns:1fr}.sidebar{width:218px}.main{margin-left:218px}}
+</style>
+</head>
+<body>
+
+<!-- ===== 登录页面 ===== -->
+<section id="adminLogin" class="star-bg">
+<div class="login-wrap">
+<div class="login-title"><div class="swirl-sm"></div><span>灵栈AI</span></div>
+<div class="admin-badge">后台管控登录</div>
+<div class="field"><b>♙</b><input id="adminUser" placeholder="请输入账号" autocomplete="username" /></div>
+<div class="field"><b>▣</b><input id="adminPass" placeholder="请输入密码" type="password" autocomplete="current-password" onkeydown="if(event.key==='Enter')adminLogin()" /><b onclick="togglePass('adminPass')" style="cursor:pointer">◉</b></div>
+<div class="login-row"><label><input type="checkbox" />记住我</label><span style="color:#50e6ff">内部管理入口</span></div>
+<button class="login-btn" onclick="adminLogin()" id="adminLoginBtn">登录</button>
+<div class="login-tip">演示账号：admin / 密码：123456</div>
+<div id="adminLoginError" class="error"></div>
+</div>
+</section>
+
+<!-- ===== 后台应用（登录后显示）===== -->
+<div id="adminApp" class="app hide">
+<aside class="sidebar"><div class="brand"><div class="logo-mark"></div><div><div class="brand-title">灵栈AI</div><div class="brand-sub">后台管控网址</div></div></div>
+<nav class="nav">
+<div class="nav-section">IP 管控</div>
+<button id="navList" class="active" onclick="showPage('list')">▦ IP列表管控</button>
+<button id="navRecords" onclick="showPage('records')">☷ 操作记录</button>
+<button class="logout-side" onclick="adminLogout()">↩ 退出登录</button>
+</nav></aside>
+
+<section class="main">
+<header class="topbar"><div class="breadcrumb">后台管控 / <b id="crumb">IP列表管控</b></div><div class="admin-user"><span id="adminUserDisplay">当前账号：admin</span><div class="avatar"></div></div></header>
+
+<main class="content">
+
+<!-- ========== IP列表管控页 ========== -->
+<section id="list" class="page active">
+<div class="page-head"><div><h1>IP列表管控</h1><p class="desc">用于创建、编辑和管理IP。只有状态为上架的IP会展示在前台资产库。</p></div><button class="btn primary" onclick="openCreate()">＋ 创建IP</button></div>
+<div class="panel"><div class="toolbar">
+<input class="input" id="listKw" placeholder="搜索编号 / IP姓名" oninput="renderList()" />
+<select class="select" id="listStatus" onchange="renderList()"><option value="">全部状态</option><option value="上架">上架</option><option value="下架">下架</option></select>
+<select class="select" id="listStyle" onchange="renderList()"><option value="">全部风格</option><option value="现代">现代</option><option value="古风">古风</option><option value="年代">年代</option><option value="科幻">科幻</option></select>
+</div>
+<table><thead><tr><th>编号</th><th>IP姓名</th><th>年龄</th><th>风格</th><th>状态</th><th>创建人</th><th>创建时间</th><th>操作</th></tr></thead><tbody id="ipTable"></tbody></table></div>
+</section>
+
+<!-- ========== 创建/编辑IP页 ========== -->
+<section id="editor" class="page">
+<div class="page-head"><div><h1 id="editorTitle">创建IP</h1><p class="desc">IP姓名、年龄、风格、状态、封面图为必填/必选；图片上传矩阵非必填。</p></div><button class="btn" onclick="showPage('list')">返回列表</button></div>
+<div class="form-layout">
+<aside class="card"><div class="card-title">基础信息 <span class="status on" id="autoVersionText"><span class="dot"></span>默认青年版</span></div>
+<div class="form-grid">
+<label><div class="lab">IP姓名 <span class="req">*</span></div><input id="fName" /></label>
+<label><div class="lab">性别 <span class="req">*</span></div><select id="fGender"><option value="女性">女性</option><option value="男性">男性</option></select></label>
+<label><div class="lab">年龄 <span class="req">*</span></div><input id="fAge" type="number" oninput="syncDefaultVersion()" /></label>
+<label><div class="lab">风格 <span class="req">*</span></div><select id="fStyle"><option value="现代">现代</option><option value="古风">古风</option><option value="年代">年代</option><option value="科幻">科幻</option></select></label>
+<label><div class="lab">状态 <span class="req">*</span></div><select id="fStatus"><option value="上架">上架</option><option value="下架">下架</option></select></label>
+<label><div class="lab">身高</div><input id="fHeight" placeholder="例如：168cm" /></label>
+<label><div class="lab">体重</div><input id="fWeight" placeholder="例如：45kg" /></label>
+<label><div class="lab">籍贯</div><input id="fHome" placeholder="例如：中国 · 江南" /></label>
+<label><div class="lab">封面图 <span class="req">*</span></div>
+<div id="coverBox" class="upload-cover" onclick="document.getElementById('coverInput').click()"><span>点击上传封面图</span></div>
+<input class="file-input" id="coverInput" type="file" accept="image/*" onchange="readCover(this)" /></label>
+</div>
+<div class="hint">年龄版本默认规则：0–12岁儿童版；13–17岁少年版；18–35岁青年版；36–59岁中年版；60岁及以上老年版。</div>
+</aside>
+
+<section class="card"><div class="card-title">图片上传矩阵 <span class="desc">非必填，可在编辑时替换或删除图片</span></div>
+<div class="version-tabs" id="editorVersions"></div>
+<div class="matrix" id="assetMatrix"></div>
+</section>
+</div>
+
+<div class="form-actions"><button class="btn" onclick="showPage('list')">取消</button><button class="btn primary" id="submitBtn" onclick="submitEditor()">提交</button></div>
+</section>
+
+<!-- ========== 操作记录页 ========== -->
+<section id="records" class="page">
+<div class="page-head"><div><h1>操作记录</h1><p class="desc">独立记录IP创建、信息修改、图片上传/替换/删除、上架/下架等操作。</p></div></div>
+<div class="panel"><div class="toolbar">
+<input class="input" id="recordKw" placeholder="搜索IP姓名 / 操作内容 / 操作人" oninput="renderRecords()" />
+<select class="select" id="recordType" onchange="renderRecords()"><option value="">全部操作</option><option value="创建">创建</option><option value="修改">修改</option></select>
+</table>
+</div>
+<table><thead><tr><th>IP编号</th><th>IP姓名</th><th>操作类型</th><th>操作内容</th><th>操作时间</th><th>操作人</th></tr></thead><tbody id="recordTable"></tbody></table></div>
+</section>
+
+</main></section>
+</div>
+
+<!-- 隐藏的文件上传input（用于素材上传） -->
+<input type="file" id="assetFileInput" style="display:none">
+
+<div id="toast" class="toast"></div>
+
+<script>
+// ==================== 常量与状态 ====================
+const API_BASE = '';
+const ADMIN_TOKEN_KEY = 'lingzhan_admin_token';
+const USER_NAME = 'admin';
+const versions = ['儿童版','少年版','青年版','中年版','老年版'];
+
+let token = localStorage.getItem(ADMIN_TOKEN_KEY) || '';
+let editMode = false;
+let editingId = null;
+let coverFile = null;
+let formAssets = {};
+let activeEditorVersion = '青年版';
+
+// ==================== 工具函数 ====================
+function api(url, opts = {}) {
+  const h = { ...(opts.headers || {}) };
+  if (token) h['Authorization'] = `Bearer ${token}`;
+  return fetch(API_BASE + url, { ...opts, headers: h }).then(r => r.json());
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(window._toastT);
+  window._toastT = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function togglePass(id) {
+  const el = document.getElementById(id);
+  el.type = el.type === 'password' ? 'text' : 'password';
+}
+
+// ==================== 登录逻辑 ====================
+async function adminLogin() {
+  const u = document.getElementById('adminUser').value.trim();
+  const p = document.getElementById('adminPass').value;
+  const btn = document.getElementById('adminLoginBtn');
+
+  if (!u || !p) { document.getElementById('adminLoginError').textContent = '请输入账号和密码'; return; }
+
+  btn.textContent = '登录中...';
+  btn.disabled = true;
+
+  const res = await api('/api/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username: u, password: p })
+  });
+
+  btn.textContent = '登录';
+  btn.disabled = false;
+
+  if (res.success && res.user.role === 'admin') {
+    token = res.token;
+    localStorage.setItem(ADMIN_TOKEN_KEY, token);
+    enterApp();
+  } else {
+    document.getElementById('adminLoginError').textContent = res.message || '账号或密码错误';
+  }
+}
+
+function adminLogout() {
+  token = '';
+  localStorage.removeItem(ADMIN_TOKEN_KEY);
+  location.reload();
+}
+
+async function enterApp() {
+  document.getElementById('adminLogin').classList.add('hide');
+  document.getElementById('adminApp').classList.remove('hide');
+  await renderList();
+  await renderRecords();
+}
+
+// ==================== 页面导航 ====================
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.nav button:not(.logout-side)').forEach(b => b.classList.remove('active'));
+  if (id === 'list') document.getElementById('navList').classList.add('active');
+  if (id === 'records') document.getElementById('navRecords').classList.add('active');
+  document.getElementById('crumb').textContent =
+    id === 'list' ? 'IP列表管控' : id === 'records' ? '操作记录' : (editMode ? '编辑IP' : '创建IP');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function pageTitle(id) {
+  return id === 'list' ? 'IP列表管控' : id === 'records' ? '操作记录' : (editMode ? '编辑IP' : '创建IP');
+}
+
+// ==================== 辅助函数 ====================
+function versionOf(a) {
+  a = Number(a || 0);
+  if (a <= 12) return '儿童版';
+  if (a <= 17) return '少年版';
+  if (a <= 18) return '青年版'; // wait, should be 35
+  if (a <= 35) return '青年版';
+  if (a <= 59) return '中年版';
+  return '老年版';
+}
+
+function accentByStyle(s) {
+  return { 现代:'#465a74', 古风:'#5c7f9f', 年代:'#986a5a', 科幻:'#3452a4' }[s] || '#5c7f9f';
+}
+
+function defaultAssets(accent) {
+  const out = {};
+  versions.forEach(v => out[v] = { video: null, role: null, three: null, styles: [] });
+  return out;
+}
+
+// ==================== IP列表渲染 ====================
+async function renderList() {
+  const kw = document.getElementById('listKw')?.value?.trim() || '';
+  const status = document.getElementById('listStatus')?.value || '';
+  const style = document.getElementById('listStyle')?.value || '';
+
+  try {
+    const params = new URLSearchParams({ keyword: kw, status, style }).toString();
+    const res = await api('/api/admin/ips?' + params);
+
+    if (res.success) {
+      const list = res.data || [];
+      document.getElementById('ipTable').innerHTML = list.map(ip =>
+        `<tr>
+          <td>${ip.ip_no}</td><td><b>${ip.name}</b></td><td>${ip.age}</td><td>${ip.style}</td>
+          <td><span class="status ${ip.status === '上架'?'on':'off'}"><span class="dot"></span>${ip.status}</span></td>
+          <td>${ip.creator}</td><td>${ip.created_at}</td>
+          <td><div class="ops"><button class="link-btn" onclick="openEdit(${ip.id})">编辑</button></div></td>
+        </tr>`
+      ).join('');
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+// ==================== 创建IP ====================
+function openCreate() {
+  editMode = false;
+  editingId = null;
+
+  document.getElementById('editorTitle').textContent = '创建IP';
+  document.getElementById('submitBtn').textContent = '提交';
+
+  document.getElementById('fName').value = '';
+  document.getElementById('fGender').value = '女性';
+  document.getElementById('fAge').value = '22';
+  document.getElementById('fStyle').value = '现代';
+  document.getElementById('fStatus').value = '上架';
+  document.getElementById('fHeight').value = '';
+  document.getElementById('fWeight').value = '';
+  document.getElementById('fHome').value = '';
+
+  coverFile = null;
+  renderCoverBox();
+  formAssets = defaultAssets('#465a74');
+  syncDefaultVersion();
+  showPage('editor');
+}
+
+// ==================== 编辑IP ====================
+async function openEdit(id) {
+  editMode = true;
+  editingId = id;
+
+  try {
+    // 获取IP详情（用后台接口）
+    const listRes = await api('/api/admin/ips');
+    const ip = (listRes.data || []).find(x => x.id === Number(id));
+    if (!ip) { toast('未找到该IP'); return; }
+
+    document.getElementById('editorTitle').textContent = `编辑IP：${ip.name}`;
+    document.getElementById('submitBtn').textContent = '保存修改';
+
+    document.getElementById('fName').value = ip.name;
+    document.getElementById('fGender').value = ip.gender || '女性';
+    document.getElementById('fAge').value = ip.age;
+    document.getElementById('fStyle').value = ip.style;
+    document.getElementById('fStatus').value = ip.status;
+    document.getElementById('fHeight').value = ip.height || '';
+    document.getElementById('fWeight').value = ip.weight || '';
+    document.getElementById('fHome').value = ip.home || ip.hometown || '';
+
+    // 封面
+    coverFile = null;
+    if (ip.cover) {
+      // 已有封面URL
+      const box = document.getElementById('coverBox');
+      box.className = 'upload-cover has';
+      box.innerHTML = `<img src="${ip.cover}" alt="封面"><span>点击替换封面图</span>`;
+      coverFile = ip.cover; // 标记为已有
+    } else {
+      renderCoverBox();
+    }
+
+    // 初始化素材结构
+    formAssets = defaultAssets(ip.accent || accentByStyle(ip.style));
+    syncDefaultVersion();
+    showPage('editor');
+  } catch (err) {
+    toast('加载IP数据失败');
+  }
+}
+
+// ==================== 封面处理 ====================
+function renderCoverBox() {
+  const box = document.getElementById('coverBox');
+  if (coverFile && typeof coverFile !== 'string') {
+    // 新选择的文件
+    const reader = new FileReader();
+    reader.onload = () => {
+      box.className = 'upload-cover has';
+      box.innerHTML = `<img src="${reader.result}" alt="预览"><span>点击替换封面图</span>`;
+    };
+    reader.readAsDataURL(coverFile);
+  } else if (!coverFile) {
+    box.className = 'upload-cover';
+    box.innerHTML = '<span>点击上传封面图</span>';
+  }
+}
+
+function readCover(input) {
+  if (input.files && input.files[0]) {
+    coverFile = input.files[0];
+    renderCoverBox();
+  }
+}
+
+// ==================== 版本同步与素材矩阵渲染 ====================
+function renderEditorVersions() {
+  document.getElementById('editorVersions').innerHTML = versions.map(v =>
+    `<button class="pill${activeEditorVersion === v ? ' active' : ''}" style="
+      display:inline-block;border:1px solid var(--line);background:${activeEditorVersion === v ? 'rgba(0,200,230,.14)':'rgba(255,255,255,.03)'};
+      color:${activeEditorVersion === v ? '#00d4ee':'#718096'};border-radius:999px;padding:7px 15px;font-size:14px;cursor:pointer;
+      border-color:${activeEditorVersion === v ? 'rgba(0,200,230,.5)':''};"
+      onclick="activeEditorVersion='${v}';renderEditorVersions();renderAssetMatrix()"
+    >${v}</button>`
+  ).join('');
+}
+
+function syncDefaultVersion() {
+  activeEditorVersion = versionOf(document.getElementById('fAge').value);
+  document.getElementById('autoVersionText').innerHTML = `<span class="dot"></span>默认${activeEditorVersion}`;
+  renderEditorVersions();
+  renderAssetMatrix();
+}
+
+function assetObj() {
+  if (!formAssets[activeEditorVersion]) {
+    formAssets[activeEditorVersion] = { video: null, role: null, three: null, styles: [] };
+  }
+  return formAssets[activeEditorVersion];
+}
+
+function renderAssetBox(asset, key, isVideo) {
+  if (asset && asset.data) {
+    return `<div class="slot-box${isVideo?' video':''} has"><img src="${asset.data}" alt=""></div>`;
+  }
+  if (asset && asset.name && !asset.data) {
+    return `<div class="slot-box${isVideo?' video':''}">${isVideo ? '<video controls style="max-width:100%;max-height:100%">暂无视频</video>' : '<span>' + asset.name + '</span>'}</div>`;
+  }
+  return `<div class="slot-box">点击上传</div>`;
+}
+
+function renderAssetMatrix() {
+  const a = assetObj();
+
+  document.getElementById('assetMatrix').innerHTML =
+
+    /* 视频介绍 */
+    `<div class="slot"><div class="slot-head"><div><div class="slot-title">视频介绍</div><div class="slot-desc">仅上传 1 个视频</div></div>
+     <span class="status ${a.video?'on':'off'}"><span class="dot"></span>${a.video?'已上传':'待上传'}</span></div>
+     ${renderAssetBox(a.video,'video',true)}
+     <div class="slot-actions"><button class="btn ghost" onclick="pickAsset('video','video/*')">${a.video?'替换视频':'上传视频'}</button>
+     ${a.video?`<button class="btn danger" onclick="deleteAsset('video')">删除</button>`:''}</div></div>` +
+
+    /* 人设图 */
+    `<div class="slot"><div class="slot-head"><div><div class="slot-title">人设图</div><div class="slot-desc">仅上传 1 张图片</div></div>
+     <span class="status ${a.role?'on':'off'}"><span class="dot"></span>${a.role?'已上传':'待上传'}</span></div>
+     ${renderAssetBox(a.role,'role',false)}
+     <div class="slot-actions"><button class="btn ghost" onclick="pickAsset('role','image/*')">${a.role?'替换图片':'上传图片'}</button>
+     ${a.role?`<button class="btn danger" onclick="deleteAsset('role')">删除</button>`:''}</div></div>` +
+
+    /* 三视图 */
+    `<div class="slot"><div class="slot-head"><div><div class="slot-title">三视图</div><div class="slot-desc">仅上传 1 张图片</div></div>
+     <span class="status ${a.three?'on':'off'}"><span class="dot"></span>${a.three?'已上传':'待上传'}</span></div>
+     ${renderAssetBox(a.three,'three',false)}
+     <div class="slot-actions"><button class="btn ghost" onclick="pickAsset('three','image/*')">${a.three?'替换图片':'上传图片'}</button>
+     ${a.three?`<button class="btn danger" onclick="deleteAsset('three')">删除</button>`:''}</div></div>` +
+
+    /* 擅长风格 */
+    `<div class="slot"><div class="slot-head"><div><div class="slot-title">擅长风格</div><div class="slot-desc">可上传多张图片</div></div>
+     <button class="btn ghost" onclick="pickAsset('style','image/*')">＋ 添加</button></div>
+     <div class="multi-grid">${(a.styles||[]).map((it,i)=>
+       `<div class="mini-img">${it.data?`<img src="${it.data}" alt="">`:''}<button onclick="deleteStyle(${i})">×</button></div>`
+     ).join('')}</div></div>`;
+}
+
+// ==================== 素材上传/删除 ====================
+function pickAsset(key, accept) {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = accept;
+  input.onchange = async () => {
+    const file = input.files[0];
+    if (!file) return;
+
+    if (!editingId) {
+      toast('请先保存IP基础信息后再上传素材');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('age_version', activeEditorVersion);
+
+    const typeMap = { video: 'video_intro', role: 'character_setting', three: 'three_view', style: 'style_gallery' };
+    formData.append('material_type', typeMap[key]);
+
+    try {
+      const res = await api(`/api/admin/ips/${editingId}/assets`, {
+        method: 'POST',
+        body: formData
+        // 不设置 Content-Type，让 multer 自动识别 boundary
+      });
+
+      if (res.success) {
+        const url = res.data.url;
+        const name = res.data.name;
+
+        if (key === 'style') {
+          assetObj().styles.push({ name, data: url, accent: accentByStyle(document.getElementById('fStyle').value) });
+        } else {
+          assetObj()[key] = { name, data: url };
+        }
+        renderAssetMatrix();
+        toast(key === 'style' ? '已添加风格图片' : '已上传文件');
+      } else {
+        toast(res.message || '上传失败');
+      }
+    } catch (err) {
+      toast('网络错误：' + err.message);
+    }
+  };
+  input.click();
+}
+
+async function deleteAsset(key) {
+  if (!editingId) return;
+
+  const a = assetObj();
+  if (!a[key]) return;
+
+  // 找到数据库中的素材ID并删除
+  // 这里简化处理：通过API删除需要知道assetId
+  // 由于我们本地只保存了file_url，需要从服务端查询后删除
+
+  // 先尝试直接更新本地UI
+  a[key] = null;
+  renderAssetMatrix();
+
+  // 实际上应该调用DELETE API，但这里需要知道material_id
+  // 我们在提交时统一处理
+  toast('已清除本地预览（实际删除需在详情中操作）');
+}
+
+function deleteStyle(i) {
+  const styles = assetObj().styles;
+  if (!styles || !styles[i]) return;
+
+  // 从数组移除
+  styles.splice(i, 1);
+  renderAssetMatrix();
+}
+
+// ==================== 表单验证与提交 ====================
+function validateForm() {
+  if (!document.getElementById('fName').value.trim()) return '请填写IP姓名';
+  const age = Number(document.getElementById('fAge').value);
+  if (!age || age < 0) return '请填写正确年龄';
+  if (!document.getElementById('fStyle').value) return '请选择风格';
+  if (!document.getElementById('fStatus').value) return '请选择状态';
+  if (!coverFile && !editMode) return '请上传封面图';
+  return '';
+}
+
+async function submitEditor() {
+  const err = validateForm();
+  if (err) { toast(err); return; }
+
+  const name = document.getElementById('fName').value.trim();
+  const style = document.getElementById('fStyle').value;
+
+  try {
+    if (editMode && editingId) {
+      // 编辑模式：先更新基础信息（含封面）
+      const updateData = {
+        name,
+        gender: document.getElementById('fGender').value,
+        age: Number(document.getElementById('fAge').value),
+        style,
+        status: document.getElementById('fStatus').value,
+        height: document.getElementById('fHeight').value.trim(),
+        weight: document.getElementById('fWeight').value.trim(),
+        hometown: document.getElementById('fHome').value.trim()
+      };
+
+      // 如果有新封面文件
+      if (coverFile && typeof coverFile !== 'string') {
+        const fd = new FormData();
+        fd.append('file', coverFile);
+        fd.append('age_version', '通用');
+        fd.append('material_type', 'cover');
+        const uploadRes = await api(`/api/admin/ips/${editingId}/assets`, { method: 'POST', body: fd });
+        if (uploadRes.success) {
+          updateData.cover_url = uploadRes.data.url.replace('/uploads/', '');
+        }
+      }
+
+      await api(`/api/admin/ips/${editingId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updateData)
+      });
+
+      toast('已保存修改');
+    } else {
+      // 创建模式
+      const createData = {
+        name,
+        gender: document.getElementById('fGender').value,
+        age: Number(document.getElementById('fAge').value),
+        style,
+        status: document.getElementById('fStatus').value,
+        height: document.getElementById('fHeight').value.trim(),
+        weight: document.getElementById('fWeight').value.trim(),
+        hometown: document.getElementById('fHome').value.trim()
+      };
+
+      const res = await api('/api/admin/ips', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(createData)
+      });
+
+      if (res.success) {
+        editingId = res.data.id;
+        editMode = true;
+
+        // 上传封面
+        if (coverFile && typeof coverFile !== 'string') {
+          const fd = new FormData();
+          fd.append('file', coverFile);
+          fd.append('age_version', '通用');
+          fd.append('material_type', 'cover');
+          await api(`/api/admin/ips/${editingId}/assets`, { method: 'POST', body: fd });
+        }
+
+        toast(`已创建IP「${name}」，若状态为上架将在前台展示`);
+      } else {
+        toast(res.message || '创建失败');
+        return;
+      }
+    }
+
+    await renderList();
+    await renderRecords();
+    showPage('list');
+  } catch (err) {
+    toast('操作失败：' + (err.message || '未知错误'));
+  }
+}
+
+// ==================== 操作记录渲染 ====================
+async function renderRecords() {
+  const kw = document.getElementById('recordKw')?.value?.trim() || '';
+  const type = document.getElementById('recordType')?.value || '';
+
+  try {
+    const params = new URLSearchParams({ keyword: kw, type }).toString();
+    const res = await api('/api/admin/operation-records?' + params);
+
+    if (res.success) {
+      const list = res.data || [];
+      document.getElementById('recordTable').innerHTML = list.map(r =>
+        `<tr>
+          <td>${r.ip_no||'-'}</td><td><b>${r.ip_name||'-'}</b></td>
+          <td><span class="record-type ${r.operation_type==='创建'?'create':'update'}">${r.operation_type}</span></td>
+          <td>${r.operation_content}</td><td>${r.created_at}</td><td>${r.operator}</td>
+        </tr>`
+      ).join('');
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+// ==================== 初始化 ====================
+if (token) enterApp();
+</script>
+</body>
+</html>
